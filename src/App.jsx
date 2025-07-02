@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import {QRCodeSVG} from "qrcode.react";
+import { QRCodeSVG } from "qrcode.react";
 import "./App.css";
 
 // Replace with your Cloudinary credentials
@@ -10,14 +10,16 @@ function App() {
   const [file, setFile] = useState(null);
   const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const handleFileChange = (e) => {
     setFile(e.target.files?.[0] || null);
   };
 
   const handleReset = () => {
-  setFile(null);
-  setImageUrl("");
+    setFile(null);
+    setImageUrl("");
+    setShowModal(false);
   };
 
   const handleUpload = async () => {
@@ -53,53 +55,65 @@ function App() {
   };
 
   return (
-  <div className="container">
-    <h1>Visiting Card</h1>
-
-    <div className="upload-section">
-      <input
-        type="file"
-        accept="image/*"
-        id="fileUpload"
-        onChange={handleFileChange}
-        hidden
-      />
-      <label htmlFor="fileUpload" className="upload-label">
-        📤 Choose Image
-      </label>
-      {file && <p className="file-name">Selected: {file.name}</p>}
-
-      <button onClick={handleUpload} disabled={loading}>
-        {loading ? "Uploading..." : "Upload & Generate QR"}
-      </button>
-
-      {file || imageUrl ? (
-    <button className="reset-btn" onClick={handleReset}>
-      🔄 Reset
-    </button>
-  ) : null}
-    </div>
-
-    {imageUrl && (
-      <div className="output">
-        <p>📇 Your Visiting Card:</p>
-        <img
-          src={imageUrl}
-          alt="Visiting Card"
-          style={{ maxWidth: "300px", border: "1px solid #ccc" }}
-        />
-        <p>📱 Scan this QR:</p>
-        <QRCodeSVG value={imageUrl} size={200} />
-        <p>
-          <a href={imageUrl} target="_blank" rel="noopener noreferrer">
-            View Image
-          </a>
-        </p>
+    <div className="page">
+      <div className="logo-container">
+        <img src="/logo.png" alt="logo" />
       </div>
-    )}
-  </div>
-);
 
+      <div className="container">
+        <h1>Visiting Card</h1>
+
+        <div className="upload-section">
+          <input
+            type="file"
+            accept="image/*"
+            id="fileUpload"
+            onChange={handleFileChange}
+            hidden
+          />
+          <label htmlFor="fileUpload" className="upload-label">
+            📤 Choose Image
+          </label>
+
+          <button onClick={handleUpload} disabled={loading}>
+            {loading ? "Uploading..." : "Upload & Generate QR"}
+          </button>
+        </div>
+
+        {file && <p className="file-name">Selected: {file.name}</p>}
+
+        {(file || imageUrl) && (
+          <button className="reset-btn" onClick={handleReset}>
+            🔄 Reset
+          </button>
+        )}
+
+        {imageUrl && (
+          <div className="output">
+            <div className="preview">
+              <QRCodeSVG value={imageUrl} size={200} />
+            </div>
+            <p>
+              <button className="view-link" onClick={() => setShowModal(true)}>
+                View Image
+              </button>
+            </p>
+          </div>
+        )}
+      </div>
+
+      {showModal && (
+        <div className="modal-backdrop" onClick={() => setShowModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <img src={imageUrl} alt="Full Size" />
+            <button className="close-modal" onClick={() => setShowModal(false)}>
+              ✖
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default App;
